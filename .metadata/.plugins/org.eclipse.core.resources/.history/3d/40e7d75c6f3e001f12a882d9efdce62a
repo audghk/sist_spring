@@ -1,0 +1,13 @@
+package kr.co.sist.admin.dao.notice;
+
+import java.util.List;
+import kr.co.sist.admin.vo.notice.SearchVO;
+
+public class NoticeAdminDAO {
+
+    public List<SearchVO> selectAllNotice() {
+
+        return null;
+    }
+
+}

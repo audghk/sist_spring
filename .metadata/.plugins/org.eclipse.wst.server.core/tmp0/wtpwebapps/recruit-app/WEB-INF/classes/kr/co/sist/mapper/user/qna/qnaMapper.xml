@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.qna.user">
+
+		<!-- 문의리스트 받기 -->
+	<select id="selectMyQnas" resultType="kr.co.sist.user.domain.qna.UserQnaDomain" parameterType="kr.co.sist.user.vo.qna.SearchVO">
+		<!-- select row_number() over (order by input_date) as qna_num, title, input_date, flag
+		from qna
+		order by input_date desc -->
+		 <![CDATA[
+			SELECT qna_num, view_num, title, input_date, flag
+			FROM (
+			    SELECT
+			        ROWNUM AS rnum,
+			        qna_num,
+			        view_num,
+			        title,
+			        input_date,
+			        flag
+			    FROM (
+			        SELECT
+			            ROW_NUMBER() OVER (ORDER BY input_date DESC) AS view_num,
+			            qna_num,
+			            title,
+			            input_date,
+			            flag
+			        FROM qna
+			        where user_id=#{userId}
+			        ORDER BY input_date DESC
+			    )
+			    WHERE ROWNUM <= #{endItemIndex}
+			)
+			WHERE rnum >= #{startItemIndex} ]]>
+	</select>
+	
+	<select id="countMyQnas" resultType="int" parameterType="kr.co.sist.user.vo.qna.SearchVO">
+	<!-- select count(*) from qna -->
+	 <![CDATA[
+			SELECT count(*)
+			FROM (
+			    SELECT
+			        ROWNUM AS rnum,
+			        qna_num,
+			        view_num,
+			        title,
+			        input_date,
+			        flag
+			    FROM (
+			        SELECT
+			            ROW_NUMBER() OVER (ORDER BY input_date DESC) AS view_num,
+			            qna_num,
+			            title,
+			            input_date,
+			            flag
+			        FROM qna
+			        where user_id=#{userId}
+			        ORDER BY input_date DESC
+			    )
+			    WHERE ROWNUM <= #{endItemIndex}
+			)
+			WHERE rnum >= #{startItemIndex} ]]>
+	</select>
+
+	<select id="selectOneQna" resultType="kr.co.sist.user.domain.qna.UserQnaDomain">
+		select 
+	    qna.category,
+	    qna.input_date,
+	    qna.title,
+	    qna.content,
+	    qna.flag,
+	    qna_answer.ans_title,
+	    qna_answer.reply_date,
+	    qna_answer.ans_content
+	from 
+	    qna
+	left join 
+	    qna_answer on qna.qna_num = qna_answer.qna_num
+	where 
+	    qna.qna_num = #{qna_num}
+	</select>	
+	
+	<insert id="insertQna" parameterType="kr.co.sist.user.vo.qna.UserQnaVO" >
+        insert into qna (qna_num, category, title, content, user_id)
+    	values ((select count(*)+1 from qna), #{category, jdbcType=VARCHAR}, #{title, jdbcType=VARCHAR}, #{content, jdbcType=VARCHAR}, #{userId, jdbcType=VARCHAR})
+	</insert>
+
+</mapper>

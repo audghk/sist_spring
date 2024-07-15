@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.admin.notice">
+<resultMap id="companyInfoResultMap" type="kr.co.sist.domain.companyinfo.SearchDomain">
+    <result property="field" column="FIELD" />
+    <result property="keyword" column="KEYWORD" />
+    <result property="currentPage" column="CURRENT_PAGE" />
+    <result property="startNum" column="START_NUM" />
+    <result property="endNum" column="END_NUM" />
+    <result property="category" column="CATEGORY" />
+    <result property="inputDate" column="INPUT_DATE" />
+    <result property="content" column="CONTENT" />
+    <result property="baseDate" column="BASE_DATE" />
+</resultMap>
+    <select id="selectAllNotice" resultType="kr.co.sist.user.vo.notice.SearchVO">
+    	SELECT NOTICE_NUM, CATEGORY, TITLE, INPUT_DATE, CONTENT FROM NOTICE;
+    </select>
+    <select id="selectNotice" resultType="kr.co.sist.user.domain.NoticeAdminDomain" parameterType="String">
+    
+    </select>
+</mapper>

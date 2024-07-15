@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.recruit.admin">
+	<resultMap id="recruitResultMap" type="kr.co.sist.admin.domain.recruit.RecruitDomain">
+	    <id property="id" column="recruit_num"/> 
+	    <result property="companyName" column="company_name"/>
+	    <result property="companyCode" column="company_code"/>
+	    <result property="position" column="position_code"/>
+	    <result property="title" column="title"/>
+	    <result property="content" column="content"/>
+	    <result property="peopleNum" column="recruit_count"/>
+	    <result property="inputDate" column="input_date"/>
+	    <result property="endDate" column="end_date"/>
+	    <result property="hireCategory" column="employment_type"/>
+	    <result property="workDay" column="work_day"/>
+	    <result property="workTime" column="work_time"/>
+	    <result property="workPlace" column="work_place"/>
+	    <result property="salaryCategory" column="sal_type"/>
+	    <result property="salary" column="sal"/>
+	    <result property="careerStandard" column="career_condition"/>
+	    <result property="careerStandardSum" column="years"/>
+	    <result property="eduStandard" column="education_base_code"/>
+	    <result property="companyPeopleNum" column="headcount"/>
+	    <result property="establishDate" column="establishment_date"/>
+	</resultMap>
+	<select id="countRecruits" resultType="int" parameterType="kr.co.sist.admin.vo.recruit.SearchVO">
+	    SELECT COUNT(*) AS total_count
+	    FROM (
+	        SELECT
+	            r.recruit_num,
+	            r.company_code,
+	            ci.company_name,
+	            r.input_date,
+	            r.end_date,
+	            r.title,
+	            r.career_condition,
+	            r.years,
+	            r.employment_type,
+	            r.work_place
+	        FROM recruit r
+	        LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+	        <where>
+	            r.delete_flag = 'F'
+	            <if test="id != 0">
+	                and r.recruit_num = #{id}
+	            </if>
+	            <choose>
+	                <when test="category == 0 and keyword != null and keyword != ''">
+	                    and ci.company_code LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 1 and keyword != null and keyword != ''">
+	                    and ci.company_name LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 2 and keyword != null and keyword != ''">
+	                    and r.title LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 3 and keyword != null and keyword != ''">
+	                    and r.work_place LIKE '%' || #{keyword} || '%'
+	                </when>
+	            </choose>
+	            <if test="inputDateStart != null">
+	                and r.input_date >= #{inputDateStart}
+	            </if>
+	            <if test="inputDateEnd != null">
+	                and r.input_date <![CDATA[ <= ]]> #{inputDateEnd}
+	            </if>
+	            <if test="endDateStart != null">
+	                and r.end_date >= #{endDateStart}
+	            </if>
+	            <if test="endDateEnd != null">
+	                and r.end_date <![CDATA[ <= ]]> #{endDateEnd}
+	            </if>
+	            <if test="career != null">
+	                and career_condition = #{career}
+	            </if>
+	            <if test="employmentType != null and employmentType != ''">
+	                and employment_type = #{employmentType}
+	            </if>
+	        </where>
+	    )
+	</select>
+    <select id="selectRecruits" resultMap="recruitResultMap" parameterType="kr.co.sist.admin.vo.recruit.SearchVO">
+    	SELECT 
+    		rnum,
+    		recruit_num,
+			company_code,
+			company_name,
+			input_date,
+			end_date,
+			title,
+			career_condition,
+			years,
+			employment_type,
+			work_place	
+    	FROM
+		  	(SELECT
+		  		row_number() over(order by recruit_num desc) as rnum,
+			    recruit_num,
+			    r.company_code,
+			    ci.company_name,
+			    r.input_date,
+			    end_date,
+			    title,
+			    career_condition,
+			    years,
+			    employment_type,
+			    work_place
+			FROM recruit r
+			LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+			<where>
+				r.delete_flag = 'F'
+				<if test="id != 0">
+					and r.recruit_num = #{id}
+				</if>
+				<choose>
+	                <when test="category == 0 and keyword != null and keyword != ''">
+	                    and ci.company_code LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 1 and keyword != null and keyword != ''">
+	                    and ci.company_name LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 2 and keyword != null and keyword != ''">
+	                    and r.title LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 3 and keyword != null and keyword != ''">
+	                    and r.work_place LIKE '%' || #{keyword} || '%'
+	                </when>
+	            </choose>
+				<if test="inputDateStart != null">
+                	and r.input_date >= #{inputDateStart}
+	            </if>
+	            <if test="inputDateEnd != null">
+	                and r.input_date <![CDATA[ <= ]]> #{inputDateEnd}
+	            </if>
+	            <if test="endDateStart != null">
+	                and r.end_date >= #{endDateStart}
+	            </if>
+	            <if test="endDateEnd != null">
+	                and r.end_date <![CDATA[ <= ]]> #{endDateEnd}
+	            </if>
+				<if test="career != null">
+					and career_condition = #{career}
+				</if>
+				<if test="employmentType != null and employmentType != ''">
+					and employment_type = #{employmentType}
+				</if>
+			</where>
+			)
+		<where>
+			<if test="startNum != 0 and endNum !=0">
+				and rnum between #{startNum} and #{endNum}
+			</if>
+		</where>
+    </select>
+    <select id="selectOneRecruit" parameterType="int" resultMap="recruitResultMap">
+    	SELECT
+            ci.company_name,
+            ci.company_code,
+            title,
+            end_date,
+            position_code,
+            r.headcount,
+            employment_type,
+            work_day,
+            work_time,
+            work_place,
+            sal_type,
+            sal,
+            career_condition,
+            years,
+            education_base_code,
+            content
+        FROM recruit r
+        LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+        WHERE recruit_num = #{recruitNum}
+    </select>
+    <select id="selectRecruitSummary" resultType="kr.co.sist.admin.domain.resume.SummaryDomain" parameterType="kr.co.sist.admin.vo.resume.SummaryVO">
+    	select ci.company_name as companyName, r.title as recruitTitle
+    	FROM recruit r
+        LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+        where r.recruit_num = #{recruitNum} and ci.company_code = #{companyCode}
+    </select>
+    <select id="selectCompanyNames" parameterType="java.lang.String" resultType="kr.co.sist.admin.domain.resume.CompanyDomain">
+    	SELECT company_name as name, company_code as code from companyinfo
+    	<where>
+    		<if test="keyword != null and keyword != ''">
+    			and company_name like '%' || #{keyword} || '%'
+    		</if>
+    	</where>
+    	ORDER BY company_name
+    </select>
+    <insert id="insertRecruit" parameterType="kr.co.sist.admin.vo.resume.RecruitAdminVO">
+	    INSERT INTO recruit (
+	        RECRUIT_NUM,
+	        COMPANY_CODE,
+	        POSITION_CODE,
+	        TITLE,
+	        CONTENT,
+	        HEADCOUNT,
+	        END_DATE,
+	        EMPLOYMENT_TYPE,
+	        WORK_DAY,
+	        WORK_TIME,
+	        WORK_PLACE,
+	        SAL_TYPE,
+	        SAL,
+	        CAREER_CONDITION,
+	        YEARS,
+	        EDUCATION_BASE_CODE
+	    ) VALUES (
+	        recruit_seq.NEXTVAL,
+	        #{companyCode},
+	        #{position},
+	        #{title},
+	        #{content},
+	        #{headcount},
+	        TO_DATE(TO_CHAR(#{endDate}, 'YYYY-MM-DD'), 'YYYY-MM-DD'),
+	        #{workType},
+	        #{workDay},
+	        #{workStartTime} || '~' || #{workEndTime},
+	        #{workPlace},
+	        #{salaryType},
+	        #{salary},
+	        #{careerStandard},
+	        #{careerYears},
+	        #{eduStandard}
+	    )
+	</insert>
+	<update id="updateRecruit" parameterType="kr.co.sist.admin.vo.resume.RecruitAdminVO">
+	    UPDATE recruit
+	    SET
+	        COMPANY_CODE = #{companyCode},
+	        POSITION_CODE = #{position},
+	        TITLE = #{title},
+	        CONTENT = #{content},
+	        HEADCOUNT = #{headcount},
+	        END_DATE = TO_DATE(TO_CHAR(#{endDate}, 'YYYY-MM-DD'), 'YYYY-MM-DD'),
+	        EMPLOYMENT_TYPE = #{workType},
+	        WORK_DAY = #{workDay},
+	        WORK_TIME = #{workStartTime} || '~' || #{workEndTime},
+	        WORK_PLACE = #{workPlace},
+	        SAL_TYPE = #{salaryType},
+	        SAL = #{salary},
+	        CAREER_CONDITION = #{careerStandard},
+	        YEARS = #{careerYears},
+	        EDUCATION_BASE_CODE = #{eduStandard}
+	    WHERE
+	        RECRUIT_NUM = #{id}
+	</update>
+    <update id="deleteOneRecruit" parameterType="int">
+    	update recruit set delete_flag = 'T' where recruit_num = #{recruitNum}
+    </update>
+</mapper>

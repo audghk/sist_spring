@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.recruit.user">
+	<resultMap id="recruitResultMap" type="kr.co.sist.admin.domain.recruit.RecruitDomain">
+	    <id property="id" column="recruit_num"/> 
+	    <result property="companyName" column="company_name"/>
+	    <result property="companyCode" column="company_code"/>
+	    <result property="position" column="position_code"/>
+	    <result property="title" column="title"/>
+	    <result property="content" column="content"/>
+	    <result property="peopleNum" column="recruit_count"/>
+	    <result property="inputDate" column="input_date"/>
+	    <result property="endDate" column="end_date"/>
+	    <result property="hireCategory" column="employment_type"/>
+	    <result property="workDay" column="work_day"/>
+	    <result property="workTime" column="work_time"/>
+	    <result property="workPlace" column="work_place"/>
+	    <result property="salaryCategory" column="sal_type"/>
+	    <result property="salary" column="sal"/>
+	    <result property="careerStandard" column="career_condition"/>
+	    <result property="careerStandardSum" column="years"/>
+	    <result property="eduStandard" column="education_base_code"/>
+	    <result property="companyPeopleNum" column="headcount"/>
+	    <result property="establishDate" column="establishment_date"/>
+	</resultMap>
+	<resultMap id="recruitListResultMap" type="kr.co.sist.user.domain.recruit.RecruitListDomain">
+	    <id property="id" column="recruit_num"/>
+	    <result property="title" column="title"/>
+	    <result property="company" column="company_name"/>
+	    <result property="inputDate" column="input_date"/>
+	    <result property="endDate" column="end_date"/>
+	    <result property="addr" column="work_place"/>
+	    <result property="workType" column="employment_type"/>
+	    <result property="career" column="career_condition"/>
+	    <result property="education" column="education_base_code"/>
+	    <result property="position" column="position_code"/>
+	</resultMap>
+	<select id="selectRecruits" resultMap="recruitListResultMap" parameterType="kr.co.sist.user.vo.recruit.SearchVO">
+	    SELECT
+	        recruit_num,
+	        company_name,
+	        position_code,
+	        title,
+	        career_condition,
+	        years,
+	        education_base_code,
+	        work_place,
+	        employment_type,
+	        content,
+	        input_date,
+	        end_date
+	    FROM (
+	        SELECT
+	            ROW_NUMBER() OVER (ORDER BY r.input_date ASC) AS rnum,
+	            recruit_num,
+	        	position_code,
+	            ci.company_name,
+	            title,
+	            career_condition,
+	            years,
+	            education_base_code,
+	            work_place,
+	            employment_type,
+	            content,
+	            r.input_date,
+	            end_date
+	        FROM recruit r
+	        LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+	        <where>
+	        	<choose>
+	                <when test="category == 1 and keyword != null and keyword != ''">
+	                    and ci.company_name LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 2 and keyword != null and keyword != ''">
+	                    and r.title LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 3 and keyword != null and keyword != ''">
+	                    r.content LIKE '%' || #{keyword} || '%'
+	                </when>
+	            </choose>
+	            <if test="addr != null and addr != ''">
+	                and r.work_place LIKE '%' || #{keyword} || '%'
+	            </if>
+	            <if test="startDate != null">
+	                and r.input_date >= #{startDate}
+	            </if>
+	            <if test="endDate != null">
+	                and r.end_date <![CDATA[ <= ]]> #{endDate}
+	            </if>
+	            <if test="positions != null and positions != ''">
+	                and (
+	                    <foreach item="position" collection="positionList" separator=" OR ">
+	                        REGEXP_LIKE(r.position_code, '(^|,)' || #{position} || '(,|$)')
+	                    </foreach>
+	                )
+	            </if>
+	        </where>
+	    )
+	    <where>
+	        <if test="startNum != 0 and endNum != 0">
+	            AND rnum BETWEEN #{startNum} AND #{endNum}
+	        </if>
+	    </where>
+	</select>
+	<select id="countRecruits" resultType="int" parameterType="kr.co.sist.user.vo.recruit.SearchVO">
+	    SELECT
+	        count(*)
+	    FROM (
+	        SELECT
+	            ROW_NUMBER() OVER (ORDER BY r.input_date ASC) AS rnum,
+	            recruit_num,
+	        	position_code,
+	            ci.company_name,
+	            title,
+	            career_condition,
+	            years,
+	            education_base_code,
+	            work_place,
+	            employment_type,
+	            content,
+	            r.input_date,
+	            end_date
+	        FROM recruit r
+	        LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+	        <where>
+	        	<choose>
+	                <when test="category == 1 and keyword != null and keyword != ''">
+	                    and ci.company_name LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 2 and keyword != null and keyword != ''">
+	                    and r.title LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 3 and keyword != null and keyword != ''">
+	                    r.content LIKE '%' || #{keyword} || '%'
+	                </when>
+	            </choose>
+	            <if test="addr != null and addr != ''">
+	                and r.work_place LIKE '%' || #{keyword} || '%'
+	            </if>
+	            <if test="startDate != null">
+	                and r.input_date >= #{startDate}
+	            </if>
+	            <if test="endDate != null">
+	                and r.end_date <![CDATA[ <= ]]> #{endDate}
+	            </if>
+	            <if test="positions != null and positions != ''">
+	                and (
+	                    <foreach item="position" collection="positionList" separator=" OR ">
+	                        REGEXP_LIKE(r.position_code, '(^|,)' || #{position} || '(,|$)')
+	                    </foreach>
+	                )
+	            </if>
+	        </where>
+	    )
+	</select>
+	<select id="selectOneRecruit" parameterType="int" resultMap="recruitResultMap">
+	    SELECT
+	    	r.recruit_num,
+	        r.company_code,
+	        ci.company_name,
+	        title,
+	        career_condition,
+	        years,
+	        education_base_code,
+	        employment_type,
+	        sal,
+	        sal_type,
+	        work_place,
+	        work_time,
+	        work_day,
+	        r.headcount as recruit_count,
+	        ci.headcount,
+	        ci.establishment_date,
+	        content,
+	        r.input_date,
+	        end_date,
+	        position.position_code,
+	        position_name
+	    FROM
+	        recruit r
+	        LEFT JOIN companyinfo ci ON r.company_code = ci.company_code
+	        LEFT JOIN position_list position ON position.position_code = r.position_code
+	    WHERE 
+	        r.recruit_num = #{recruit_num}
+	</select>
+	<select id="selectWelfares" resultType="kr.co.sist.user.domain.recruit.WelfareDomain" parameterType="java.lang.String">
+		select category, welfare_content as content from welfare where company_code = #{companyCode}
+	</select>
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<context:component-scan base-package="kr.co.sist" />
+	
+	<!-- interceptor 등록 -->
+	<interceptors>
+			<interceptor>
+				<mapping path="/user/**"/>
+				<exclude-mapping path="/user/mypage/**"/>
+				<exclude-mapping path="/user/logout.do"/>
+				<beans:bean id="nli" class="kr.co.sist.user.interceptor.NotLoginInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/user/mypage/**"/>
+				<mapping path="/resume/resumes.do"/>
+				<mapping path="/resume/detail.do"/>
+				<mapping path="/review/reviewWrite.do"/>
+				<mapping path="/review/reviewSurvey.do"/>
+				<exclude-mapping path="/user/mypage/modifyPassPage.do"/>
+				<exclude-mapping path="/user/mypage/modifyPassword.do"/>
+				<exclude-mapping path="/user/mypage/modifyPassProcess.do"/>
+				<exclude-mapping path="/user/mypage/passFlagON.do"/>
+				<exclude-mapping path="/user/mypage/flagOnPage.do"/>
+				<beans:bean id="ui" class="kr.co.sist.user.interceptor.UserInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/**"/>
+				<exclude-mapping path="/manage/adminLogin/adminLoginPage.do"/>
+				<exclude-mapping path="/manage/adminLogin/adminLogin.do"/>
+				<exclude-mapping path="/manage/logoutProcess.do"/>
+				<exclude-mapping path="/manage/adminLogin/logoutProcess.do"/>
+				<beans:bean id="ai" class="kr.co.sist.admin.interceptor.AdminInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/user/**"/>
+				<beans:bean id="userAi" class="kr.co.sist.admin.interceptor.UserAuthInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/companyinfo/**"/>
+				<beans:bean id="compAi" class="kr.co.sist.admin.interceptor.CompanyAuthInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/recruit/**"/>
+				<beans:bean id="recrAi" class="kr.co.sist.admin.interceptor.RecruitAuthInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/review/**"/>
+				<beans:bean id="reviAi" class="kr.co.sist.admin.interceptor.ReviewAuthInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/qna/**"/>
+				<beans:bean id="qnaAi" class="kr.co.sist.admin.interceptor.QnaAuthInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/notice/**"/>
+				<beans:bean id="noteAi" class="kr.co.sist.admin.interceptor.NoticeAuthInterceptor"/>
+			</interceptor>
+			<interceptor>
+				<mapping path="/manage/admin/**"/>
+				<beans:bean id="adminAi" class="kr.co.sist.admin.interceptor.AdminPositionInterceptor"/>
+			</interceptor>
+			
+	</interceptors>
+	
+</beans:beans>

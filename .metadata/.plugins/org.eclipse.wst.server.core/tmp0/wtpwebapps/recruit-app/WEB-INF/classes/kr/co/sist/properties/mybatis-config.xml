@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <properties resource="kr/co/sist/properties/database.properties" />
+  <typeAliases>
+  	<!-- example ) <typeAlias type="kr.co.sist.domain.EmpDomain" alias="ed" /> -->
+  	<typeAlias type="kr.co.sist.admin.domain.qna.QnaDomain" alias="QnaDomain"/>
+  	<typeAlias type="kr.co.sist.user.domain.qna.UserQnaDomain" alias="UserQnaDomain"/>
+  	<typeAlias alias="CompanyInfoVO" type="kr.co.sist.user.vo.review.CompanyInfoVO"/>
+  	<typeAlias type="kr.co.sist.user.domain.notice.NoticeUserDomain" alias="NoticeUserDomain"/>
+  </typeAliases>
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC">
+      	<property name="autoCommit" value="false"/>
+      </transactionManager>
+      <dataSource type="POOLED">
+        <property name="driver" value="${driver}"/>
+        <property name="url" value="${connectionURL}"/>
+        <property name="username" value="${username}"/>
+        <property name="password" value="${password}"/>
+      </dataSource>
+    </environment>
+  </environments>
+  <mappers>
+    <mapper resource="kr/co/sist/mapper/dashboard/DashboardMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/review/AdminReviewMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/exampleMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/recruit/recruitMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/basic/adminMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/basic/userBasicMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/recruit/recruitMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/resume/resumeMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/resume/resumeMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/main/UserMainMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/review/ReviewMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/companyinfo/companyinfoUserMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/qna/QnaMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/qna/qnaMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/companyinfo/companyinfoAdminMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/mypage/mypageMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/user/notice/noticeMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/user/userManageMapper.xml"/>
+    <mapper resource="kr/co/sist/mapper/admin/notice/noticeAdminMapper.xml"/>
+    
+  </mappers>
+</configuration>

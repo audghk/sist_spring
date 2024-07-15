@@ -1,0 +1,9 @@
+127.0.0.1 - - [01/Jul/2024:12:15:24 +0900] "GET / HTTP/1.1" 404 807
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:15:24 +0900] "GET /spring_mvc/index.html HTTP/1.1" 304 -
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:15:24 +0900] "GET /favicon.ico HTTP/1.1" 404 818
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:15:24 +0900] "GET /spring_mvc/index.do HTTP/1.1" 200 6087
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:16:01 +0900] "GET /spring_mvc/day0613/mybatis_search.do?deptno=10 HTTP/1.1" 200 1864
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:16:05 +0900] "GET /spring_mvc/day0613/mybatis_search.do?deptno=20 HTTP/1.1" 200 1969
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:16:10 +0900] "GET /spring_mvc/day0613/mybatis_search.do?deptno=10 HTTP/1.1" 200 1864
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:19:50 +0900] "GET /spring_mvc/index.do HTTP/1.1" 200 6084
+0:0:0:0:0:0:0:1 - - [01/Jul/2024:12:19:55 +0900] "GET /spring_mvc/day0613/mybatis_search.do?deptno=10 HTTP/1.1" 200 1861

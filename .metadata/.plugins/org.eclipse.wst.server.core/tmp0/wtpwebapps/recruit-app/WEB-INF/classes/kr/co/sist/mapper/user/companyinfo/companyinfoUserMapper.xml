@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.user.companyinfo">
+    <resultMap id="companyInfoResultMap" type="kr.co.sist.domain.companyinfo.SearchDomain">
+    <result property="field" column="FIELD" />
+    <result property="keyword" column="KEYWORD" />
+    <result property="currentPage" column="CURRENT_PAGE" />
+    <result property="startNum" column="START_NUM" />
+    <result property="endNum" column="END_NUM" />
+    <result property="avgSal" column="AVG_SAL" />
+    <result property="revenue" column="REVENUE" />
+    <result property="headcount" column="HEADCOUNT" />
+    <result property="companyCode" column="COMPANY_CODE" />
+    <result property="companyName" column="COMPANY_NAME" />
+    <result property="description" column="DESCRIPTION" />
+    <result property="logo" column="LOGO" />
+    <result property="companyImg" column="COMPANY_IMG" />
+    <result property="businessNumber" column="BUSINESS_NUMBER" />
+    <result property="addr" column="ADDR" />
+    <result property="ceoName" column="CEO_NAME" />
+    <result property="companyClassification" column="COMPANY_CLASSIFICATION" />
+    <result property="inputDate" column="INPUT_DATE" />
+    <result property="establishmentDate" column="ESTABLISHMENT_DATE" />
+    <result property="historyContent" column="HISTORY_CONTENT" />
+    <result property="welfareContent" column="WELFARE_CONTENT" />
+    <result property="baseDate" column="BASE_DATE" />
+    <result property="category" column="CATEGORY" />
+</resultMap>
+	
+    <select id="selectAllCompanyinfo" resultMap="companyInfoResultMap">
+    	SELECT COMPANY_CODE, COMPANY_NAME, LOGO, REVENUE, HEADCOUNT, AVG_SAL, INPUT_DATE
+		FROM COMPANYINFO
+    </select>
+    
+    <select id="selectCompanyinfo" resultMap="companyInfoResultMap" parameterType="map">
+    	SELECT COMPANY_CODE, COMPANY_NAME, LOGO, REVENUE, HEADCOUNT, INPUT_DATE, AVG_SAL
+		FROM COMPANYINFO
+		<where>
+	        <if test="companyName != 'null'">
+	            COMPANY_NAME LIKE '%' || #{companyName} || '%'
+	        </if>
+	        <if test="avgSal != null">
+	            AND AVG_SAL >= #{avgSal}
+	        </if>
+	        <if test="companyClassification != '선택안함'">
+	            AND COMPANY_CLASSIFICATION = #{companyClassification} 
+	        </if>
+    	</where>
+    </select>
+    
+    <select id="selectCompanyinfoDetail" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,COMPANY_NAME,LOGO,COMPANY_IMG,DESCRIPTION,HEADCOUNT,COMPANY_CLASSIFICATION,REVENUE,CEO_NAME,ADDR,ESTABLISHMENT_DATE,INPUT_DATE
+    	FROM COMPANYINFO
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <select id="selectHistory" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,BASE_DATE,HISTORY_CONTENT
+    	FROM HISTORY
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <select id="selectWelfare" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,CATEGORY,WELFARE_CONTENT
+    	FROM WELFARE
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="kr.co.sist.notice.user">
+ 	<!-- 전체 공지사항 리스트 조회, 페이지네이션 -->
+ 	<select id="selectNotices" resultType="kr.co.sist.user.domain.notice.NoticeUserDomain">
+ 		select category, title, input_date, notice_num
+ 		from notice
+ 		where blind_flag='N'
+ 		order by input_date desc
+		 <!-- <![CDATA[
+		    select category, title, input_date, notice_num
+		    from (
+		        select rownum as rnum, category, title, input_date, notice_num
+		        from (
+		            select category, title, input_date, notice_num
+		            from notice
+		            where blind_flag='N'
+		            order by input_date desc
+		        )
+		        where rownum <= #{enditemindex}
+		    )
+		    where rnum >= #{startitemindex}
+	    ]]> -->
+ 	</select> 
+ 	
+ 	<!-- 공지사항 수 전체 얻기 -->
+ 	<select id="countNotices" resultType="int">
+        select count(*)
+        from notice
+        where blind_flag = 'N'
+    </select>
+ 	
+ 	<select id="selectNoticesByCategory" resultType="kr.co.sist.user.domain.notice.NoticeUserDomain" parameterType="String">
+ 		<![CDATA[
+	    select category, title, input_date, notice_num
+	    from notice
+	    where blind_flag = 'N' and category = #{category, jdbcType=VARCHAR}
+	    order by input_date desc
+	    ]]>
+    </select>
+    
+    <select id="selectNoticesbyKeyword" resultType="kr.co.sist.user.domain.notice.NoticeUserDomain" parameterType="java.util.Map">
+	    select category, title, input_date, notice_num
+	    from notice
+	    where blind_flag = 'N'
+	    <if test="searchType == '제목'">
+	        and title like '%' || #{keyword} || '%'
+	    </if>
+	    <if test="searchType == '내용'">
+	        and content like '%' || #{keyword} || '%'
+	    </if>
+	    <if test="searchType == '제목+내용'">
+	        and (title like '%' || #{keyword} || '%' or content like '%' || #{keyword} || '%')
+	    </if>
+	    order by input_date desc
+    </select>
+  	
+ 	<select id="selectOneNotice" resultType="kr.co.sist.user.domain.notice.NoticeUserDomain">
+ 		select notice_num, category, title, content, input_date
+   		from notice
+    	where notice_num = #{notice_num}
+ 	</select>
+ 	
+ </mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="kr.co.sist.mapper.admin.user.userManageMapper">
+ 	<resultMap id="userInfoResultMap" type="kr.co.sist.admin.domain.user.UserInfoDomain">
+	    <result property="userId" column="user_id"/>
+	    <result property="name" column="name"/>
+	    <result property="phone" column="phone"/>
+	    <result property="signupDate" column="signup_date"/>
+	</resultMap>
+	<resultMap id="userDetailInfo" type="kr.co.sist.admin.domain.user.UserDetailDomain">
+		<result property="name" column="name"/>
+		<result property="gender" column="gender"/>
+		<result property="userId" column="user_id"/>
+		<result property="phone" column="phone"/>
+		<result property="tel" column="tel"/>
+		<result property="signupDate" column="signup_date"/>
+		<result property="birthDate" column="birth_date"/>
+		<result property="recentloginDate" column="recentlogin_date"/>
+	</resultMap>
+	<resultMap id="userApplyInfo" type="kr.co.sist.admin.domain.user.UserApplyDomain">
+		<result property="resumeNum" column="resume_num"/>
+		<result property="companyName" column="company_name"/>
+		<result property="applyDate" column="apply_date"/>
+		<result property="title" column="title"/>
+		<result property="progressState" column="progress_state"/>
+	</resultMap>
+	<resultMap id="userQnaInfo" type="kr.co.sist.admin.domain.user.UserQnaDomain">
+		<result property="qnaNum" column="qna_num"/>
+		<result property="category" column="category"/>
+		<result property="title" column="title"/>
+		<result property="inputDate" column="input_date"/>
+		<result property="flag" column="flag"/>
+	</resultMap>
+ 	<select id="selectUserList" resultMap="userInfoResultMap" parameterType="kr.co.sist.admin.vo.user.SearchVO">
+  		select rnum,name,user_id,phone,signup_date
+  		from (
+  			select row_number() over(order by signup_date desc) as rnum,name,user_id,phone,signup_date
+			from users
+			<where>
+				<choose>
+	                <when test="category == 1 and keyword != null and keyword != ''">
+	                    and user_id LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 2 and keyword != null and keyword != ''">
+	                    and name LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 3 and keyword != null and keyword != ''">
+	                    and phone Like '%' || #{keyword} || '%'
+	                </when>
+	            </choose>
+	            <if test="signupDateStart != null">
+                	and signup_date >= #{ signupDateStart }
+	            </if>
+	            <if test="signupDateEnd != null">
+	                and signup_date <![CDATA[ <= ]]> #{ signupDateEnd }
+	            </if>
+			</where>
+			)
+		<where>
+			<if test="startNum != 0 and endNum != 0">
+				rnum between #{startNum} and #{endNum}
+			</if>
+		</where>
+  </select>
+  <select id="selectUserCnt" resultType="int" parameterType="kr.co.sist.admin.vo.user.SearchVO">
+  		select count(*) as total_count
+  		from (
+  			select row_number() over(order by signup_date desc) as rnum,name,user_id,phone,signup_date
+			from users
+			<where>
+				<choose>
+	                <when test="category == 1 and keyword != null and keyword != ''">
+	                    and user_id LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 2 and keyword != null and keyword != ''">
+	                    and name LIKE '%' || #{keyword} || '%'
+	                </when>
+	                <when test="category == 3 and keyword != null and keyword != ''">
+	                    and phone Like '%' || #{keyword} || '%'
+	                </when>
+	            </choose>
+	            <if test="signupDateStart != null">
+                	and signup_date >= #{ signupDateStart }
+	            </if>
+	            <if test="signupDateEnd != null">
+	                and signup_date <![CDATA[ <= ]]> #{ signupDateEnd }
+	            </if>
+			</where>
+			)
+  </select>
+  <select id="selectUserDetail" resultMap="userDetailInfo" parameterType="String">
+  		select name,gender,user_id,phone,tel,signup_date,birth_date,recentlogin_date
+		from users
+		where user_id=#{ userId }
+  </select>
+  <select id="selectUserApply" resultMap="userApplyInfo" parameterType="String">
+  		select rs.resume_num,cpi.company_name,ap.apply_date,rs.title,ap.progress_state
+		from apply ap, resume rs, companyinfo cpi, career crr
+		where (ap.user_id=rs.user_id and crr.resume_num=ap.resume_num) and (crr.company_code=cpi.company_code) and ap.user_id=#{ userId }
+		order by ap.apply_date desc
+		fetch first 5 row only
+  </select>
+  <select id="selectUserQna" resultMap="userQnaInfo" parameterType="String">
+  		select qna_num,category,title,input_date,flag
+		from qna
+		where user_id=#{ userId }
+		order by input_date desc
+		fetch first 5 row only
+  </select>
+ 
+ </mapper>

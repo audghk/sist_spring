@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.co.sist.qna.admin">
+  <select id="selectNewQnas" resultType="kr.co.sist.admin.domain.qna.QnaDomain">
+     <![CDATA[
+    select *
+    from (
+        select rownum rnum, q.*
+        from (
+            select
+                row_number() over (order by input_date desc) as view_num,
+                qna_num,
+                category,
+                title,
+                content,
+                user_id,
+                input_date
+            from qna
+            where flag = '답변대기'
+            order by input_date
+        ) q
+        where rownum <= #{endItemIndex}
+    )
+    where rnum >= #{startItemIndex}
+    ]]>
+  </select>
+  
+  <select id="countNewQnas" resultType="int">
+    select count(*) from qna where flag = '답변대기'
+</select>
+  
+  <select id="selectOneNewQna" resultType="kr.co.sist.admin.domain.qna.QnaDomain">
+  select 
+	    qna.category,
+	    qna.input_date,
+	    qna.title,
+	    qna.content,
+	    qna.user_id,
+	    qna_answer.ans_title,
+	    qna_answer.reply_date,
+	    qna_answer.ans_content
+	from 
+	    qna, qna_answer 
+	where 
+	     ( qna_answer.qna_num(+) = qna.qna_num ) and qna.qna_num = #{qna_num}
+  </select>
+  
+  <select id="selectOldQnas" resultType="kr.co.sist.admin.domain.qna.QnaDomain">
+    <!-- select
+        row_number() over (order by input_date desc) as view_num,
+        qna_num,
+        category,
+        title,
+        input_date
+    from qna
+    where flag = '답변완료'
+    order by input_date desc -->
+    <![CDATA[
+   select *
+    from (
+        select rownum rnum, q.*
+        from (
+            select
+                row_number() over (order by input_date desc) as view_num,
+                qna_num,
+                category,
+                title,
+                content,
+                user_id,
+                input_date
+            from qna
+            where flag = '답변완료'
+            order by input_date desc
+        ) q
+        where rownum <= #{endItemIndex, jdbcType=INTEGER}
+    )
+    where rnum >= #{startItemIndex, jdbcType=INTEGER}
+    ]]>
+  </select>
+  
+  <select id="countQnas" resultType="int">
+    select count(*) from qna where flag = '답변완료'
+	</select>
+  
+  <select id="selectOneOldQna" resultType="kr.co.sist.admin.domain.qna.QnaDomain">
+	select 
+	    qna.category,
+	    qna.input_date,
+	    qna.title,
+	    qna.content,
+	    qna_answer.ans_title,
+	    qna_answer.reply_date,
+	    qna_answer.ans_content
+	from 
+	    qna
+	inner join 
+	    qna_answer on qna.qna_num = qna_answer.qna_num
+	where 
+	    qna.qna_num = #{qna_num}
+  </select>
+  
+  <insert id="insertQnaAnswer" parameterType="kr.co.sist.admin.vo.qna.QnaVO">
+	insert into qna_answer(ans_content, qna_num, ans_title)
+	values (#{ans_content},  #{qna_num}, #{ans_title} )
+  </insert>
+  
+  <update id="updateQnaFlag" parameterType="int">
+    update qna
+    set flag = '답변완료'
+    where qna_num = #{qna_num} and flag = '답변대기'
+  </update>
+	
+</mapper>

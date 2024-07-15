@@ -1,0 +1,31 @@
+package day0617;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * DBMS업무 목록에 대한 코드 구현
+ * 
+ * @author user
+ */
+public class MySqlDAO implements DAO {
+
+    @Override
+    public void insertName(String name) throws SQLException {
+        System.out.println(name + "이 Mysql DBMS에 추가되었습니다.");
+
+    }// insert
+
+    @Override
+    public List<String> selectNames() throws SQLException {
+        List<String> list = new ArrayList<String>();
+        list.add("김동섭");
+        list.add("김병년");
+        list.add("최수연");
+        list.add("이희윤");
+        list.add("윤웅찬");
+        return list;
+    }// selectNames
+
+}// class

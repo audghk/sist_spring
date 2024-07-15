@@ -1,0 +1,26 @@
+1718797486839	Rename type 'CompanyinfoController'
+1718797616022	Rename package 'kr.co.sist.user.vo.companyinfo'
+1718797625563	Rename package 'kr.co.sist.user.domain.companyinfo'
+1718797688569	Rename type 'CompanyinfoUserDomain'
+1718799470091	Copy compilation unit
+1718799776383	Delete element
+1718799792764	Copy file
+1718799815811	Delete element
+1718799822330	Copy file
+1718799842990	Rename resource 'recruitMapper.xml'
+1718801456562	Delete element
+1718801459335	Copy file
+1718801486931	Rename resource 'companyinfoMapper.xml'
+1718801500656	Rename resource 'companyinfoMapper.xml'
+1718801523425	Delete element
+1718801544253	Copy file
+1718801553704	Rename resource 'companyinfoAdminMapper.xml'
+1718862433494	Rename package 'kr.co.admin.dao.companyinfo'
+1718862439563	Rename package 'kr.co.admin.dao.notice'
+1718862444795	Rename package 'kr.co.admin.domain.notice'
+1718862451662	Rename package 'kr.co.admin.mapper.companyinfo'
+1718862456407	Rename package 'kr.co.admin.mapper.notice'
+1718862461175	Rename package 'kr.co.admin.service.companyinfo'
+1718862467528	Rename package 'kr.co.admin.service.notice'
+1718862473174	Rename package 'kr.co.admin.vo.notice'
+1718862482910	Rename package 'kr.co.admin.controller.notice'

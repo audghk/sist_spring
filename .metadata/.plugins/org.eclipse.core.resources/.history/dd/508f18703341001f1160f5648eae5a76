@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.admin.companyinfo">
+<resultMap id="companyInfoResultMap" type="kr.co.sist.domain.companyinfo.SearchDomain">
+    <result property="field" column="FIELD" />
+    <result property="keyword" column="KEYWORD" />
+    <result property="currentPage" column="CURRENT_PAGE" />
+    <result property="startNum" column="START_NUM" />
+    <result property="endNum" column="END_NUM" />
+    <result property="avgSal" column="AVG_SAL" />
+    <result property="revenue" column="REVENUE" />
+    <result property="headcount" column="HEADCOUNT" />
+    <result property="companyCode" column="COMPANY_CODE" />
+    <result property="companyName" column="COMPANY_NAME" />
+    <result property="description" column="DESCRIPTION" />
+    <result property="logo" column="LOGO" />
+    <result property="companyImg" column="COMPANY_IMG" />
+    <result property="businessNumber" column="BUSINESS_NUMBER" />
+    <result property="addr" column="ADDR" />
+    <result property="ceoName" column="CEO_NAME" />
+    <result property="companyClassification" column="COMPANY_CLASSIFICATION" />
+    <result property="inputDate" column="INPUT_DATE" />
+    <result property="establishmentDate" column="ESTABLISHMENT_DATE" />
+    <result property="historyContent" column="HISTORY_CONTENT" />
+    <result property="welfareContent" column="WELFARE_CONTENT" />
+    <result property="baseDate" column="BASE_DATE" />
+    <result property="category" column="CATEGORY" />
+</resultMap>
+
+    <select id="selectAllCompanyinfo" resultMap="companyInfoResultMap">
+	    SELECT COMPANY_CODE, COMPANY_NAME, LOGO, COMPANY_CLASSIFICATION, AVG_SAL, HEADCOUNT
+		FROM COMPANYINFO
+    </select>
+    
+ <!-- 전체 레코드 수를 구하는 쿼리 -->
+	<select id="countCompanyinfo" resultType="int" parameterType="map">
+	    SELECT COUNT(*)
+	    FROM COMPANYINFO
+	    WHERE 1=1
+	    <if test="companyName != 'null' and companyName != ''">
+	        AND COMPANY_NAME LIKE '%' || #{companyName} || '%'
+	    </if>
+	    <if test="avgSal != null and avgSal != 0">
+	        AND AVG_SAL >= #{avgSal}
+	    </if>
+	    <if test="companyClassification != null and companyClassification != '선택안함'">
+	        AND COMPANY_CLASSIFICATION = #{companyClassification}
+	    </if>
+	</select>
+    
+    <!-- <select id="countCompanyinfo" resultType="int" parameterType="map">
+    	SELECT COUNT(*)
+		FROM COMPANYINFO
+    	<where>
+	        <if test="companyName != 'null'">
+	            COMPANY_NAME LIKE '%' || #{companyName} || '%'
+	        </if>
+	        <if test="avg_sal != null">
+	            AND AVG_SAL >= #{avgSal}
+	        </if>
+	        <if test="companyClassification != '선택안함'">
+	            AND COMPANY_CLASSIFICATION = #{companyClassification}
+	        </if>
+    	</where>
+    </select> -->
+
+<!-- 페이징된 데이터를 가져오는 쿼리 -->
+	<select id="selectCompanyinfo" resultMap="companyInfoResultMap" parameterType="map">
+	    SELECT COMPANY_CODE, COMPANY_NAME, LOGO, COMPANY_CLASSIFICATION, AVG_SAL, HEADCOUNT
+	    FROM (
+	        SELECT COMPANY_CODE, COMPANY_NAME, LOGO, COMPANY_CLASSIFICATION, AVG_SAL, HEADCOUNT,
+	               ROW_NUMBER() OVER(ORDER BY COMPANY_NAME) AS ROW_NUM
+	        FROM COMPANYINFO
+	        WHERE 1=1
+	        <if test="companyName != 'null' and companyName != ''">
+	            AND COMPANY_NAME LIKE '%' || #{companyName} || '%'
+	        </if>
+	        <if test="avgSal != null and avgSal != 0">
+	            AND AVG_SAL >= #{avgSal}
+	        </if>
+	        <if test="companyClassification != null and companyClassification != '선택안함'">
+	            AND COMPANY_CLASSIFICATION = #{companyClassification}
+	        </if>
+	    ) sub
+	    WHERE ROW_NUM BETWEEN #{offset} + 1 AND #{offset} + #{limit}
+	</select>
+    
+    <select id="selectCompanyinfoDetail" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,COMPANY_NAME,BUSINESS_NUMBER,LOGO,COMPANY_IMG,DESCRIPTION,HEADCOUNT,COMPANY_CLASSIFICATION,REVENUE,AVG_SAL,CEO_NAME,ADDR,ESTABLISHMENT_DATE,INPUT_DATE
+    	FROM COMPANYINFO
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <select id="lastCompNum" resultType="String">
+    	SELECT COMPANY_CODE
+    	FROM COMPANYINFO
+    	WHERE ROWNUM=1
+    	ORDER BY COMPANY_CODE DESC
+    </select>
+    
+    <select id="selectHistory" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,BASE_DATE,HISTORY_CONTENT
+    	FROM HISTORY
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <select id="selectWelfare" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,CATEGORY,WELFARE_CONTENT
+    	FROM WELFARE
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <select id="selectWelfareCategory" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,CATEGORY
+    	FROM WELFARE
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <select id="selectWelfareContent" resultMap="companyInfoResultMap" parameterType="String">
+    	SELECT COMPANY_CODE,WELFARE_CONTENT
+    	FROM WELFARE
+    	WHERE COMPANY_CODE = #{companyCode}
+    </select>
+    
+    <insert id="insertCompanyinfoDetail" parameterType="kr.co.sist.vo.companyinfo.CompanyinfoVO">
+	    INSERT INTO COMPANYINFO(COMPANY_CODE, COMPANY_NAME, DESCRIPTION, LOGO, COMPANY_IMG, AVG_SAL, REVENUE, ESTABLISHMENT_DATE, HEADCOUNT, BUSINESS_NUMBER, ADDR, CEO_NAME, COMPANY_CLASSIFICATION, INPUT_DATE)
+		VALUES(#{companyCode},#{companyName},#{description},#{logo},#{companyImg},#{avgSal},#{revenue},TO_DATE(#{establishmentDate}, 'YYYY'),#{headcount},#{businessNumber},#{addr},#{ceoName},#{companyClassification},SYSDATE)
+    </insert>
+    
+    <update id="updateCompanyinfoDetail" parameterType="kr.co.sist.vo.companyinfo.CompanyinfoVO">
+    	UPDATE COMPANYINFO
+    	SET COMPANY_NAME=#{companyName},
+    		BUSINESS_NUMBER=#{businessNumber},
+    		HEADCOUNT=#{headcount},
+    		ESTABLISHMENT_DATE=#{establishmentDate},
+    		REVENUE=#{revenue},
+    		ADDR=#{addr},
+    		CEO_NAME=#{ceoName},
+    		AVG_SAL=#{avgSal},
+    		COMPANY_CLASSIFICATION=#{companyClassification},
+    		DESCRIPTION=#{description},
+    		LOGO=#{logo},
+    		COMPANY_IMG=#{companyImg}
+		WHERE COMPANY_CODE=#{ companyCode }
+    </update>
+    
+    <insert id="insertHistory" parameterType="kr.co.sist.vo.companyinfo.HistoryVO">
+	    INSERT INTO HISTORY(COMPANY_CODE, BASE_DATE, HISTORY_CONTENT)
+	    VALUES(#{companyCode},#{baseDate},#{historyContent})
+    </insert>
+    
+    <delete id="deleteHistory" parameterType="map">
+    	DELETE FROM HISTORY
+		WHERE COMPANY_CODE=#{companyCode} AND BASE_DATE=#{baseDate}
+    </delete>
+    
+    <insert id="insertWelfare" parameterType="kr.co.sist.vo.companyinfo.WelfareVO">
+	    INSERT INTO WELFARE(COMPANY_CODE, CATEGORY, WELFARE_CONTENT)
+	    VALUES(#{companyCode},#{category},#{welfareContent})
+    </insert>
+    
+    <delete id="deleteWelfare" parameterType="map">
+    	DELETE FROM WELFARE
+		WHERE COMPANY_CODE=#{companyCode} AND CATEGORY=#{category}
+    </delete>
+
+    
+</mapper>
